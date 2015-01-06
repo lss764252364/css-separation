@@ -1,1 +1,134 @@
-"use strict";var collectionSize,css,cssSeparation,each,extend,fs,hasStr,isArray,isEmpty,isObjectBrace,isString,isUndefined,trim,util,_default;fs=require("fs"),extend=require("xtend"),util=require("gulp-util"),css=require("css"),hasStr=require("amp-includes"),trim=require("amp-trim"),each=require("amp-each"),collectionSize=require("amp-size"),isString=require("amp-is-string"),isEmpty=require("amp-is-empty"),isArray=require("amp-is-array"),isUndefined=require("amp-is-undefined"),isObjectBrace=require("is-object-brace"),_default={beautify:!1,conditionalClass:[".ie7",".ie8"]},cssSeparation=function(){function e(){var e;e=arguments[0],this.options=isObjectBrace(e)?extend(_default,e):_default}return e.prototype.getSource=function(e){return isString(e)&&!isEmpty(e)?fs.readFileSync(e,{encoding:"utf8"}):void 0},e.prototype.getAST=function(e){return isString(e)&&!isEmpty(e)?css.parse(this.getSource(e)):void 0},e.prototype.getRules=function(e){return this.getAST(e).stylesheet.rules},e.prototype.isConditionalSelector=function(e){var t,i;return i=this,t=void 0,each(i.options.conditionalClass,function(i){hasStr(e,i)&&(t=!0)}),isUndefined(t)?!1:t},e.prototype.getSelectors=function(e,t){var i,r,n;return r=this,i="",n=[],collectionSize(e.selectors)>=2?(each(e.selectors,function(e,o,s){return t?r.isConditionalSelector(e)?n.push(e):void 0:i+=o!==collectionSize(s)-1?r.options.beautify?e+",\n":e+",":e}),t&&(isEmpty(n)||(util.log(n),i+=collectionSize(n)>=2?n.join(r.options.beautify?",\n":","):n[0]))):i+=t?r.isConditionalSelector(e.selectors[0])?e.selectors[0]:"":e.selectors[0],i},e.prototype.getDeclarations=function(e){return e.declarations},e.prototype.getCommonCss=function(e){var t,i;return t=this,i="",each(this.getRules(e),function(e){"rule"===e.type&&(i+=t.getSelectors(e,!0),each(t.getDeclarations(e),function(e,r,n){0===r&&(i+=t.options.beautify?" {\n":"{"),isUndefined(e.property)||(i+=t.options.beautify?"\n	"+e.property+": "+e.value+";\n":e.property+":"+e.value+";"),r===collectionSize(n)-1&&(i+=t.options.beautify?"\n}\n\n":"}")}))}),i},e.prototype._writeFile=function(e,t){fs.writeFileSync(t,this.getCommonCss(e))},e}(),module.exports=cssSeparation;
+'use strict';
+var collectionSize, css, cssSeparation, each, extend, fs, hasStr, isArray, isEmpty, isObjectBrace, isString, isUndefined, path, trim, util, _default;
+
+fs = require('fs');
+
+path = require('path');
+
+extend = require('xtend');
+
+util = require('gulp-util');
+
+css = require('css');
+
+hasStr = require('amp-includes');
+
+trim = require('amp-trim');
+
+each = require('amp-each');
+
+collectionSize = require('amp-size');
+
+isString = require('amp-is-string');
+
+isEmpty = require('amp-is-empty');
+
+isArray = require('amp-is-array');
+
+isUndefined = require('amp-is-undefined');
+
+isObjectBrace = require('is-object-brace');
+
+_default = {
+  beautify: false,
+  conditionalClass: ['.ie7', '.ie8', '.ie9']
+};
+
+cssSeparation = (function() {
+  function cssSeparation() {
+    var option;
+    option = arguments[0];
+    if (isObjectBrace(option)) {
+      this.options = extend(_default, option);
+    } else {
+      this.options = _default;
+    }
+  }
+
+  cssSeparation.prototype.getSource = function(cssFile) {
+    if (isString(cssFile) && !isEmpty(cssFile)) {
+      return fs.readFileSync(cssFile, {
+        encoding: 'utf8'
+      });
+    }
+  };
+
+  cssSeparation.prototype.getAST = function(cssFile) {
+    if (isString(cssFile) && !isEmpty(cssFile)) {
+      return css.parse(this.getSource(cssFile));
+    }
+  };
+
+  cssSeparation.prototype.getRules_AST = function(cssFile) {
+    return this.getAST(cssFile).stylesheet.rules;
+  };
+
+  cssSeparation.prototype.getSelectors_AST = function(currentRule) {
+    return currentRule.selectors;
+  };
+
+  cssSeparation.prototype.getDeclarations_AST = function(currentRule) {
+    return currentRule.declarations;
+  };
+
+  cssSeparation.prototype.isConditionalSelector = function(selector) {
+    var identificationResult, that;
+    that = this;
+    identificationResult = void 0;
+    if (isArray(selector)) {
+      each(that.options.conditionalClass, function(cs_item, cs_index, cs_list) {
+        if (hasStr(selector, cs_item)) {
+          identificationResult = true;
+        }
+      });
+    }
+    if (isUndefined(identificationResult)) {
+      return false;
+    } else {
+      return identificationResult;
+    }
+  };
+
+  cssSeparation.prototype.getIdxListOfRuleContainCC = function(_rules) {
+    var that, _arr;
+    that = this;
+    _arr = [];
+    each(_rules, function(cc_item, cc_index, cc_list) {
+      if (cc_item.type === 'rule') {
+        if (that.isConditionalSelector(that.getSelectors_AST(cc_item))) {
+          _arr.push(cc_index);
+        }
+      }
+    });
+    return _arr;
+  };
+
+  cssSeparation.prototype.getDirname = function(file) {
+    var _dirname;
+    _dirname = path.dirname(file);
+    if (_dirname === '.') {
+      return './';
+    } else {
+      return _dirname;
+    }
+  };
+
+  cssSeparation.prototype.createFile = function(_content, _output) {
+    if (isString(_content && isString(_output))) {
+      fs.writeFile(_output, _content, function(err) {
+        if (err) {
+          throw err;
+        }
+      });
+    }
+  };
+
+  cssSeparation.prototype._writeFile = function(_input, _output) {
+    fs.writeFileSync(_output, this.getCommonCss(_input));
+  };
+
+  return cssSeparation;
+
+})();
+
+module.exports = cssSeparation;
