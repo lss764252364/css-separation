@@ -1,0 +1,1 @@
+"use strict";var cfg,gulp,run_sequence;cfg=require("../config.json"),gulp=require("gulp"),run_sequence=require("run-sequence"),gulp.task("default",function(e){run_sequence(["coffeescript"],["watch"],e)});

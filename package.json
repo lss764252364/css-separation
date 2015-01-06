@@ -1,0 +1,149 @@
+{
+
+	"name": "css-separation",
+
+	"description": "Separate content like conditional stylesheets(and soon...) from '*.css' file, and generate individual files for them according to certain rules!",
+
+	"keywords": [
+
+		"css separation",
+
+		"stylesheet separation",
+
+		"content separation",
+
+		"conditional css separation",
+
+		"conditional stylesheets separation",
+
+		"separate css",
+
+		"separate stylesheet",
+
+		"separate content",
+
+		"separate conditional css",
+
+		"separate conditional stylesheets",
+
+		"node.js modules",
+
+		"gulp"
+
+	],
+
+	"version": "0.1.0",
+
+	"author": {
+
+		"name": "沈维忠 ( Shen Weizhong / Tony Stark )",
+
+		"email": "swzyocowboy@icloud.com",
+
+		"url": "http://itonyyo.github.io/"
+
+	},
+
+	"homepage": "https://github.com/iTonyYo/css-separation",
+
+	"repository": {
+
+		"type": "git",
+
+		"url": "https://github.com/iTonyYo/css-separation.git"
+
+	},
+
+	"bugs": {
+
+		"url": "https://github.com/iTonyYo/css-separation/issues"
+
+	},
+
+	"private": false,
+
+	"scripts": {
+
+		"test": "gulp mocha"
+
+	},
+
+	"engines": {
+
+		"node": ">=0.10.33"
+
+	},
+
+	"dependencies": {
+
+		"css": "^2.1.0",
+
+		"xtend": "^4.0.0",
+
+		"amp-trim": "^1.0.2",
+
+		"amp-includes": "^1.0.1",
+
+		"amp-each": "^1.0.1",
+
+		"amp-size": "^1.0.1",
+
+		"amp-is-string": "^1.0.1",
+
+		"amp-is-empty": "^1.0.2",
+
+		"amp-is-array": "^1.0.1",
+
+		"amp-is-undefined": "^1.0.1",
+
+		"is-object-brace": "^0.1.3"
+
+	},
+
+	"devDependencies": {
+
+		"gulp": "^3.8.10",
+
+		"require-dir": "^0.1.0",
+
+		"run-sequence": "^1.0.2",
+
+		"glob": "^4.3.2",
+
+		"del": "^1.1.0",
+
+		"minimist": "^1.1.0",
+
+		"lazypipe": "^0.2.2",
+
+		"merge-stream": "^0.1.6",
+
+		"node-find-folder": "^0.1.8",
+
+		"gulp-util": "^3.0.1",
+
+		"gulp-if": "^1.2.5",
+
+		"gulp-changed": "^1.1.0",
+
+		"gulp-plumber": "^0.6.6",
+
+		"gulp-rename": "^1.2.0",
+
+		"gulp-notify": "^2.1.0",
+
+		"gulp-coffee": "^2.2.0",
+
+		"gulp-coffeelint": "^0.4.0",
+
+		"gulp-uglify": "^1.0.2",
+
+		"gulp-mocha": "^2.0.0",
+
+		"gulp-load-plugins": "^0.8.0"
+
+	},
+
+	"licenses": "MIT"
+
+}
