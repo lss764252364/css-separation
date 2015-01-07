@@ -18,6 +18,8 @@ $          = require('gulp-load-plugins')()
 
 del        = require 'del'
 
+ff         = require 'node-find-folder'
+
 order      = cfg.clean_order
 
 cln_prefix = 'clean-'
