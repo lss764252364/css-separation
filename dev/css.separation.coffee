@@ -38,6 +38,8 @@ isUndefined    = require 'amp-is-undefined'
 
 isObjectBrace  = require 'is-object-brace'
 
+debug          = true
+
 
 
 # @name _default
@@ -49,9 +51,45 @@ isObjectBrace  = require 'is-object-brace'
 # @author 沈维忠 ( Tony Stark / Shen Weizhong )
 _default =
 
+	mute: false
+
+	dest: ''
+
+	conditionalClass: ['.ie6', '.ie7', '.ie8', '.ie9', '.ie10', '.ie11']
+
 	beautify: false
 
-	conditionalClass: ['.ie7', '.ie8', '.ie9']
+	filterCommonStylesheets: true
+
+	filterConditionalStylesheets: true
+
+	filterMediaQueryStylesheets: true
+
+
+
+_debug = (outputType, outputContent) ->
+
+	if debug
+
+		switch outputType.toLowerCase()
+
+			when 'log'
+
+				util.log outputContent
+
+			when 'error'
+
+				pluginName = 'CSS SEPARATION'
+
+				err = new util.PluginError pluginName, outputContent,
+
+					showStack: true
+
+			else
+
+				util.log 'Please choose the right type for output.'
+
+	return
 
 
 
@@ -64,17 +102,96 @@ _default =
 class cssSeparation
 
     # @constructs
-	constructor: ->
+    # @param {object} options Configuration for the instance.
+	constructor: (options) ->
 
-		option = arguments[0]
+		if isObjectBrace(options) and not isEmpty(options)
 
-		if isObjectBrace option
+			@options = extend _default, options
 
-			@options = extend _default, option
+			_debug 'log', 'merged Configuration...'
 
 		else
 
 			@options = _default
+
+			_debug 'log', 'not merged Configuration...'
+
+	# @param {string | array} cssFiles Stylesheet(s) need(s) to be separated.
+	deal: (@cssFiles) ->
+
+		that = @
+
+		# 假设传入的是单个文件（数据类型为字符串）:
+		# 	获取文件名；
+		# 	获取该文件所在文件夹相对路径；
+		# 	为该文件生成独属于该文件的所有符合预设分离条件的文件。
+		# 	处理该文件，并把结果分别写到对应文件中；
+		# 假设传入的是多个文件（数据类型为数组）:
+		#
+		# ...
+
+		fileName = that.getBasename cssFiles, '.css'
+
+		relativePath = that.getDirname cssFiles
+
+		that.generateFile relativePath, fileName
+
+		return
+
+	getBasename: (file, ext) ->
+
+		if isString(file) and not isEmpty(file)
+
+			if isString(ext) and not isEmpty(file)
+
+				path.basename file, ext
+
+			else
+
+				path.basename file
+
+	getDirname: (file) ->
+
+		_dirname = path.dirname file
+
+		if _dirname is '.' then './' else _dirname
+
+	generateFile: (relativePath, belong) ->
+
+		that = @
+
+		if that.options.filterConditionalStylesheets
+
+			_debug 'log', '需要过滤出条件样式 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+			if isArray(that.options.conditionalClass) and not isEmpty(that.options.conditionalClass)
+
+				each that.options.conditionalClass, (item, index, list) ->
+
+					_newFile = belong + item + '.css'
+
+					_output = relativePath + '/' + _newFile
+
+					that.generateCCFile item, _output
+
+					_debug 'log', '需要被生成文件的命名是：' + _newFile
+
+					_debug 'log', '需要被生成文件的路径是：' + _output
+
+					return
+
+		return
+
+	createFile: (_content, _output) ->
+
+		if isString(_content) and isString(_output)
+
+			fs.writeFileSync _output, _content
+
+			_debug 'log', '已写入文件。'
+
+		return
 
 	getSource: (cssFile) ->
 
@@ -112,7 +229,7 @@ class cssSeparation
 
 		identificationResult = undefined
 
-		if isArray selector
+		if isArray(selector) and not isEmpty(selector)
 
 			each that.options.conditionalClass, (cs_item, cs_index, cs_list) ->
 
@@ -143,133 +260,119 @@ class cssSeparation
 
 		_arr
 
-	getDirname: (file) ->
+	generateCCFile: (conditionalClass, _output)->
 
-		_dirname = path.dirname file
+		that = @
 
-		if _dirname is '.' then './' else _dirname
+		newRules = []
 
-	createFile: (_content, _output) ->
+		traversingResultCache = ''
 
-		if isString _content and isString _output
+		_debug 'log', '需要单独操作的文件是：' + that.cssFiles
 
-			fs.writeFile _output, _content, (err) ->
+		_rules = that.getRules_AST that.cssFiles
 
-				if err
+		idxs = that.getIdxListOfRuleContainCC _rules
 
-					throw err
+		_debug 'log', '包含条件类的规则的对象的索引（位置）集合是：' + idxs
 
-				return
+		each idxs, (item, index, list) ->
+
+			newRules.push _rules[+item]
+
+			return
+
+		_debug 'log', '仅存在包含条件类的规则的对象的AST：' + newRules
+
+		filterSelector = (currentRule) ->
+
+			strSlt=''
+
+			_sltCache = []
+
+			slt_ast = that.getSelectors_AST(currentRule)
+
+			_debug 'log', '当前AST规则包含的 "selectors" 属性的值是：' + slt_ast
+
+			if collectionSize(slt_ast) >= 2
+
+				each slt_ast, (slts_item, slts_index, slts_list) ->
+
+					if hasStr slts_item, conditionalClass
+
+						_sltCache.push slts_item
+
+					return
+
+				if collectionSize(_sltCache) >= 2
+
+					if that.options.beautify then strSlt += _sltCache.join(',\n') else strSlt += _sltCache.join(',')
+
+				else if not isEmpty _sltCache
+
+					strSlt += _sltCache[0]
+
+			else
+
+				_slt = slt_ast[0]
+
+				if hasStr _slt, conditionalClass
+
+					strSlt += _slt
+
+			strSlt
+
+		each newRules, (nr_item, nr_index, nr_list) ->
+
+			if nr_item.type is 'rule'
+
+				sltFltRslt = filterSelector(nr_item)
+
+				if not isEmpty sltFltRslt
+
+					traversingResultCache += sltFltRslt
+
+					each that.getDeclarations_AST(nr_item), (_item, _index, _list) ->
+
+						if _index is 0
+
+							if that.options.beautify then traversingResultCache += '\u0020{\n' else traversingResultCache += '{'
+
+						if not isUndefined _item.property
+
+							if that.options.beautify
+
+							then traversingResultCache += '\n\t' + _item.property + ': ' + _item.value + ';\n'
+
+							else traversingResultCache += _item.property + ':' + _item.value + ';'
+
+						if _index is (collectionSize(_list) - 1)
+
+							if that.options.beautify then traversingResultCache += '\n}\n\n' else traversingResultCache += '}'
+
+						return
+
+			return
+
+		_debug 'log', '输出遍历结果：' + traversingResultCache
+
+		if isString(traversingResultCache) and not isEmpty(traversingResultCache)
+
+			_debug 'log', '遍历结果写至：' + _output
+
+			that.createFile traversingResultCache, _output
+
+			_debug 'log', '------------------------------------------------------------------------------------------'
+
+		if isString(traversingResultCache) and isEmpty(traversingResultCache)
+
+			if not that.options.mute
+
+				util.log 'There is no stylesheets contain "' + conditionalClass + '" conditional class.'
+
+			_debug 'log', '------------------------------------------------------------------------------------------'
 
 		return
-
-	_writeFile: (_input, _output) ->
-
-		fs.writeFileSync _output, @getCommonCss _input
-
-		return
-
-	# getSelectors: (currentRule, filterConditionalStyle) ->
-
-	# 	that = @
-
-	# 	st = ''
-
-	# 	_sltCache = []
-
-	# 	if collectionSize(currentRule.selectors) >= 2
-
-	# 		each currentRule.selectors, (slts_item, slts_index, slts_list) ->
-
-	# 			if filterConditionalStyle
-
-	# 				if that.isConditionalSelector slts_item
-
-	# 					_sltCache.push slts_item
-
-	# 			else
-
-	# 				if slts_index isnt (collectionSize(slts_list) - 1)
-
-	# 					if that.options.beautify then st += slts_item + ',\n' else st += slts_item + ','
-
-	# 				else
-
-	# 					st += slts_item
-
-	# 		if filterConditionalStyle
-
-	# 			if not isEmpty _sltCache
-
-	# 				util.log _sltCache
-
-	# 				if collectionSize(_sltCache) >= 2
-
-	# 					if that.options.beautify
-
-	# 					then st += _sltCache.join(',\n')
-
-	# 					else st += _sltCache.join(',')
-
-	# 				else
-
-	# 					st += _sltCache[0]
-
-	# 	else
-
-	# 		if filterConditionalStyle
-
-	# 			if that.isConditionalSelector currentRule.selectors[0]
-
-	# 				st += currentRule.selectors[0]
-
-	# 			else
-
-	# 				st += ''
-
-	# 		else
-
-	# 			st += currentRule.selectors[0]
-
-	# 	st
-
-	# getCommonCss: (cssFile) ->
-
-	# 	that = @
-
-	# 	traversingCache = ''
-
-	# 	each @getRules_AST(cssFile), (item, index, list) ->
-
-	# 		if item.type is 'rule'
-
-	# 			# traverse/set selectors
-	# 			traversingCache += that.getSelectors item, true
-
-	# 			# traverse/set declarations
-	# 			each that.getDeclarations_AST(item), (_item, _index, _list) ->
-
-	# 				if _index is 0
-
-	# 					if that.options.beautify then traversingCache += '\u0020{\n' else traversingCache += '{'
-
-	# 				if not isUndefined _item.property
-
-	# 					if that.options.beautify
-
-	# 					then traversingCache += '\n\t' + _item.property + ': ' + _item.value + ';\n'
-
-	# 					else traversingCache += _item.property + ':' + _item.value + ';'
-
-	# 				if _index is (collectionSize(_list) - 1)
-
-	# 					if that.options.beautify then traversingCache += '\n}\n\n' else traversingCache += '}'
-
-	# 				return
-
-	# 		return
-
-	# 	traversingCache
 
 
 
