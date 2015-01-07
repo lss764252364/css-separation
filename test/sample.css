@@ -2,37 +2,37 @@
 
 body {
 
-    background-color: #ddd;
+	background-color: #ddd;
 
-    font-size: 100%;
+	font-size: 100%;
 
-    padding: 3em;
+	padding: 3em;
 
 }
 
 .mainNav {
 
-    float: left;
+	float: left;
 
-    transform: perspective(500px);
+	transform: perspective(500px);
 
-    transform-style: preserve-3d;
+	transform-style: preserve-3d;
 
 }
 
 .mainNav ul {
 
-    list-style: none;
+	list-style: none;
 
-    padding: 0;
+	padding: 0;
 
 }
 
 .ie7 .frmRegister > .fieldArea {
 
-    width: 294px;
+	width: 294px;
 
-    height: 35px;
+	height: 35px;
 
 }
 
@@ -42,46 +42,46 @@ body {
 
 .ie9 .frmRegister > .iptPhoneCodeArea {
 
-    width: 200px;
+	width: 200px;
 
 }
 
 .getPhoneCode.ie9 {
 
-    color: #FFF;
+	color: #FFF;
 
-    font: 12px/37px "微软雅黑";
+	font: 12px/37px "微软雅黑";
 
-    text-align: center;
+	text-align: center;
 
-    text-decoration: none;
+	text-decoration: none;
 
-    width: 89px;
+	width: 89px;
 
-    height: 37px;
+	height: 37px;
 
-    margin-top: 30px;
+	margin-top: 30px;
 
-    margin-left: 5px;
+	margin-left: 5px;
 
-    background: #5a6b7f; /* Old browsers */
+	background: #5a6b7f; /* Old browsers */
 
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzVhNmI3ZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0ODU5NmQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzVhNmI3ZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0ODU5NmQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
 
-    background: -moz-linear-gradient(top,  #5a6b7f 0%, #48596d 100%); /* FF3.6+ */
+	background: -moz-linear-gradient(top,  #5a6b7f 0%, #48596d 100%); /* FF3.6+ */
 
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5a6b7f), color-stop(100%,#48596d)); /* Chrome,Safari4+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5a6b7f), color-stop(100%,#48596d)); /* Chrome,Safari4+ */
 
-    background: -webkit-linear-gradient(top,  #5a6b7f 0%,#48596d 100%); /* Chrome10+,Safari5.1+ */
+	background: -webkit-linear-gradient(top,  #5a6b7f 0%,#48596d 100%); /* Chrome10+,Safari5.1+ */
 
-    background: -o-linear-gradient(top,  #5a6b7f 0%,#48596d 100%); /* Opera 11.10+ */
+	background: -o-linear-gradient(top,  #5a6b7f 0%,#48596d 100%); /* Opera 11.10+ */
 
-    background: -ms-linear-gradient(top,  #5a6b7f 0%,#48596d 100%); /* IE10+ */
+	background: -ms-linear-gradient(top,  #5a6b7f 0%,#48596d 100%); /* IE10+ */
 
-    background: linear-gradient(to bottom,  #5a6b7f 0%,#48596d 100%); /* W3C */
+	background: linear-gradient(to bottom,  #5a6b7f 0%,#48596d 100%); /* W3C */
 
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5a6b7f', endColorstr='#48596d',GradientType=0 ); /* IE6-8 */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5a6b7f', endColorstr='#48596d',GradientType=0 ); /* IE6-8 */
 
 }
 
@@ -90,16 +90,16 @@ only screen and (-moz-min-device-pixel-ratio: 1.5),
 only screen and (-o-min-device-pixel-ratio: 3/2),
 only screen and (min-device-pixel-ratio: 1.5) {
 
-    .studioCheckbox_square-red,
+	.studioCheckbox_square-red,
 
-    .studioRadiobox_square-red {
+	.studioRadiobox_square-red {
 
-        background-image: url(../../img/investment-site/icons/red@2x.png);
+		background-image: url(../../img/investment-site/icons/red@2x.png);
 
-        -webkit-background-size: 240px 24px;
+		-webkit-background-size: 240px 24px;
 
-        background-size: 240px 24px;
+		background-size: 240px 24px;
 
-    }
+	}
 
 }

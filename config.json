@@ -1,65 +1,65 @@
 {
 
-    "clean_order": [
+	"clean_order": [
 
-        "dest"
+		"dest"
 
-    ],
+	],
 
-    "cs_opts": {
+	"cs_opts": {
 
-        "bare": true
+		"bare": true
 
-    },
+	},
 
-    "cmprs_opts": {
+	"cmprs_opts": {
 
-        "mangle": {
+		"mangle": {
 
-            "except": [
+			"except": [
 
-                "require"
+				"require"
 
-            ]
+			]
 
-        }
+		}
 
-    },
+	},
 
-    "notify_opts": {
+	"notify_opts": {
 
-        "title": "Gulp Notification",
+		"title": "Gulp Notification",
 
-        "message": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+		"message": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 
-        "sound": true
+		"sound": true
 
-    },
+	},
 
-    "clp": ["coffeelint", "notify"],
+	"clp": ["coffeelint", "notify"],
 
-    "path": {
+	"path": {
 
-        "project_root": "./",
+		"project_root": "./",
 
-        "dev": "./dev/",
+		"dev": "./dev/",
 
-        "test": "./test/",
+		"test": "./test/",
 
-        "root_js_src": "./",
+		"root_js_src": "./",
 
-        "splited_tasks_js_src": "./gulp/"
+		"splited_tasks_js_src": "./gulp/"
 
-    },
+	},
 
-    "message": {
+	"message": {
 
-        "coffeelint": "Lint completely!",
+		"coffeelint": "Lint completely!",
 
-        "cmprs_root_js_src": "JS files from root have been compressed completely!",
+		"cmprs_root_js_src": "JS files from root have been compressed completely!",
 
-        "cmprs_splited_tasks_js_src": "JS files from 'gulp' folder have been compressed completely!"
+		"cmprs_splited_tasks_js_src": "JS files from 'gulp' folder have been compressed completely!"
 
-    }
+	}
 
 }

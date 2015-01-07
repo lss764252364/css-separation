@@ -1,213 +1,213 @@
 {
 
-    "arrow_spacing": {
+	"arrow_spacing": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "camel_case_classes": {
+	"camel_case_classes": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "coffeescript_error": {
+	"coffeescript_error": {
 
-        "level": "error"
+		"level": "error"
 
-    },
+	},
 
-    "colon_assignment_spacing": {
+	"colon_assignment_spacing": {
 
-        "level": "warn",
+		"level": "warn",
 
-        "spacing": {
+		"spacing": {
 
-            "left": 0,
+			"left": 0,
 
-            "right": 1
+			"right": 1
 
-        }
+		}
 
-    },
+	},
 
-    "cyclomatic_complexity": {
+	"cyclomatic_complexity": {
 
-        "value": 10,
+		"value": 10,
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "duplicate_key": {
+	"duplicate_key": {
 
-        "level": "error"
+		"level": "error"
 
-    },
+	},
 
-    "empty_constructor_needs_parens": {
+	"empty_constructor_needs_parens": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "indentation": {
+	"indentation": {
 
-        "value": 1,
+		"value": 1,
 
-        "level": "warn"
+		"level": "warn"
 
-    },
+	},
 
-    "line_endings": {
+	"line_endings": {
 
-        "level": "ignore",
+		"level": "ignore",
 
-        "value": "unix"
+		"value": "unix"
 
-    },
+	},
 
-    "max_line_length": {
+	"max_line_length": {
 
-        "value": 150,
+		"value": 150,
 
-        "level": "error",
+		"level": "error",
 
-        "limitComments": true
+		"limitComments": true
 
-    },
+	},
 
-    "missing_fat_arrows": {
+	"missing_fat_arrows": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "newlines_after_classes": {
+	"newlines_after_classes": {
 
-        "value": 3,
+		"value": 3,
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_backticks": {
+	"no_backticks": {
 
-        "level": "error"
+		"level": "error"
 
-    },
+	},
 
-    "no_debugger": {
+	"no_debugger": {
 
-        "level": "warn"
+		"level": "warn"
 
-    },
+	},
 
-    "no_empty_functions": {
+	"no_empty_functions": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_empty_param_list": {
+	"no_empty_param_list": {
 
-        "level": "error"
+		"level": "error"
 
-    },
+	},
 
-    "no_implicit_braces": {
+	"no_implicit_braces": {
 
-        "level": "ignore",
+		"level": "ignore",
 
-        "strict": true
+		"strict": true
 
-    },
+	},
 
-    "no_implicit_parens": {
+	"no_implicit_parens": {
 
-        "strict": true,
+		"strict": true,
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_interpolation_in_single_quotes": {
+	"no_interpolation_in_single_quotes": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_plusplus": {
+	"no_plusplus": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_stand_alone_at": {
+	"no_stand_alone_at": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_tabs": {
+	"no_tabs": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_throwing_strings": {
+	"no_throwing_strings": {
 
-        "level": "error"
+		"level": "error"
 
-    },
+	},
 
-    "no_trailing_semicolons": {
+	"no_trailing_semicolons": {
 
-        "level": "error"
+		"level": "error"
 
-    },
+	},
 
-    "no_trailing_whitespace": {
+	"no_trailing_whitespace": {
 
-        "level": "error",
+		"level": "error",
 
-        "allowed_in_comments": false,
+		"allowed_in_comments": false,
 
-        "allowed_in_empty_lines": true
+		"allowed_in_empty_lines": true
 
-    },
+	},
 
-    "no_unnecessary_double_quotes": {
+	"no_unnecessary_double_quotes": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "no_unnecessary_fat_arrows": {
+	"no_unnecessary_fat_arrows": {
 
-        "level": "warn"
+		"level": "warn"
 
-    },
+	},
 
-    "non_empty_constructor_needs_parens": {
+	"non_empty_constructor_needs_parens": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    },
+	},
 
-    "prefer_english_operator": {
+	"prefer_english_operator": {
 
-        "level": "ignore",
+		"level": "ignore",
 
-        "doubleNotLevel": "ignore"
+		"doubleNotLevel": "ignore"
 
-    },
+	},
 
-    "space_operators": {
+	"space_operators": {
 
-        "level": "ignore"
+		"level": "ignore"
 
-    }
+	}
 
 }
