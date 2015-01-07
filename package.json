@@ -118,9 +118,9 @@
 
 		"merge-stream": "^0.1.6",
 
-		"node-find-folder": "^0.1.8",
+		"node-find-folder": "^0.1.9",
 
-		"gulp-util": "^3.0.1",
+		"gulp-util": "^3.0.2",
 
 		"gulp-if": "^1.2.5",
 
