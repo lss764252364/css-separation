@@ -1,5 +1,5 @@
 'use strict';
-var collectionSize, css, cssSeparation, debug, each, extend, fs, hasStr, isArray, isEmpty, isObjectBrace, isString, isUndefined, path, trim, util, _debug, _default;
+var collectionSize, css, cssSeparation, debug, each, extend, fnUtil, fs, hasStr, isArray, isEmpty, isObjectBrace, isString, isUndefined, path, trim, util, _debug, _default;
 
 fs = require('fs');
 
@@ -60,39 +60,67 @@ _debug = function(outputType, outputContent) {
   }
 };
 
+fnUtil = {
+  isStringAndNotEmpty: function(obj) {
+    if (isString(obj) && !isEmpty(obj)) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  isStringAndEmpty: function(obj) {
+    if (isString(obj) && isEmpty(obj)) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  isArrayAndNotEmpty: function(obj) {
+    if (isArray(obj) && !isEmpty(obj)) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  isObjectBraceAndNotEmpty: function(obj) {
+    if (isObjectBrace(obj) && !isEmpty(obj)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
 cssSeparation = (function() {
   function cssSeparation(options) {
     if (isObjectBrace(options) && !isEmpty(options)) {
       this.options = extend(_default, options);
-      _debug('log', 'merged Configuration...');
     } else {
       this.options = _default;
-      _debug('log', 'not merged Configuration...');
     }
   }
 
   cssSeparation.prototype.deal = function(cssFiles) {
-    var fileName, relativePath, that;
-    this.cssFiles = cssFiles;
-    that = this;
-    fileName = that.getBasename(cssFiles, '.css');
-    relativePath = that.getDirname(cssFiles);
-    that.generateFile(relativePath, fileName);
+    var fileName, relativePath;
+    this.cssFiles = trim(cssFiles);
+    fileName = this.getBasename(this.cssFiles, '.css');
+    relativePath = this.getDirname(this.cssFiles);
+    this.generateFile(relativePath, fileName);
   };
 
-  cssSeparation.prototype.getBasename = function(file, ext) {
-    if (isString(file) && !isEmpty(file)) {
-      if (isString(ext) && !isEmpty(file)) {
-        return path.basename(file, ext);
+  cssSeparation.prototype.getBasename = function(fileWithPath, ext) {
+    if (fnUtil.isStringAndNotEmpty(fileWithPath)) {
+      if (fnUtil.isStringAndNotEmpty(ext)) {
+        return path.basename(fileWithPath, ext);
       } else {
-        return path.basename(file);
+        return path.basename(fileWithPath);
       }
     }
   };
 
-  cssSeparation.prototype.getDirname = function(file) {
+  cssSeparation.prototype.getDirname = function(fileWithPath) {
     var _dirname;
-    _dirname = path.dirname(file);
+    _dirname = path.dirname(fileWithPath);
     if (_dirname === '.') {
       return './';
     } else {
@@ -101,32 +129,36 @@ cssSeparation = (function() {
   };
 
   cssSeparation.prototype.generateFile = function(relativePath, belong) {
-    var that;
+    var $rules, commonStylesheets_AST, conditionalStylesheets_AST, opts, that, _newFile, _output;
     that = this;
-    if (that.options.filterConditionalStylesheets) {
-      _debug('log', '需要过滤出条件样式 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      if (isArray(that.options.conditionalClass) && !isEmpty(that.options.conditionalClass)) {
-        each(that.options.conditionalClass, function(item, index, list) {
-          var _newFile, _output;
+    opts = that.options;
+    $rules = that.getRules_AST(that.cssFiles);
+    if (opts.filterCommonStylesheets) {
+      _newFile = belong + '.common.css';
+      _output = relativePath + '/' + _newFile;
+      commonStylesheets_AST = that.getCommonStylesheets($rules);
+      that.generateCommonStylesheets(commonStylesheets_AST, _output);
+    }
+    if (opts.filterConditionalStylesheets) {
+      conditionalStylesheets_AST = that.getStylesheetsContainConditionalClass($rules);
+      if (fnUtil.isArrayAndNotEmpty(opts.conditionalClass)) {
+        each(opts.conditionalClass, function(item, index, list) {
           _newFile = belong + item + '.css';
           _output = relativePath + '/' + _newFile;
-          that.generateCCFile(item, _output);
-          _debug('log', '需要被生成文件的命名是：' + _newFile);
-          _debug('log', '需要被生成文件的路径是：' + _output);
+          that.generateConditionalStylesheets(conditionalStylesheets_AST, item, _output);
         });
       }
     }
   };
 
   cssSeparation.prototype.createFile = function(_content, _output) {
-    if (isString(_content) && isString(_output)) {
+    if (fnUtil.isStringAndNotEmpty(_content) && fnUtil.isStringAndNotEmpty(_output)) {
       fs.writeFileSync(_output, _content);
-      _debug('log', '已写入文件。');
     }
   };
 
   cssSeparation.prototype.getSource = function(cssFile) {
-    if (isString(cssFile) && !isEmpty(cssFile)) {
+    if (fnUtil.isStringAndNotEmpty(cssFile)) {
       return fs.readFileSync(cssFile, {
         encoding: 'utf8'
       });
@@ -134,30 +166,35 @@ cssSeparation = (function() {
   };
 
   cssSeparation.prototype.getAST = function(cssFile) {
-    if (isString(cssFile) && !isEmpty(cssFile)) {
+    if (fnUtil.isStringAndNotEmpty(cssFile)) {
       return css.parse(this.getSource(cssFile));
     }
   };
 
   cssSeparation.prototype.getRules_AST = function(cssFile) {
-    return this.getAST(cssFile).stylesheet.rules;
+    if (fnUtil.isStringAndNotEmpty(cssFile)) {
+      return this.getAST(cssFile).stylesheet.rules;
+    }
   };
 
   cssSeparation.prototype.getSelectors_AST = function(currentRule) {
-    return currentRule.selectors;
+    if (fnUtil.isObjectBraceAndNotEmpty(currentRule)) {
+      return currentRule.selectors;
+    }
   };
 
   cssSeparation.prototype.getDeclarations_AST = function(currentRule) {
     return currentRule.declarations;
   };
 
-  cssSeparation.prototype.isConditionalSelector = function(selector) {
-    var identificationResult, that;
+  cssSeparation.prototype.isContainConditionalSelector = function(selector) {
+    var identificationResult, opts, that;
     that = this;
+    opts = that.options;
     identificationResult = void 0;
-    if (isArray(selector) && !isEmpty(selector)) {
-      each(that.options.conditionalClass, function(cs_item, cs_index, cs_list) {
-        if (hasStr(selector, cs_item)) {
+    if (fnUtil.isArrayAndNotEmpty(selector)) {
+      each(opts.conditionalClass, function(cs_item, cs_index, cs_list) {
+        if (hasStr(selector.toString(), cs_item)) {
           identificationResult = true;
         }
       });
@@ -169,13 +206,13 @@ cssSeparation = (function() {
     }
   };
 
-  cssSeparation.prototype.getIdxListOfRuleContainCC = function(_rules) {
+  cssSeparation.prototype.getIdxListOfCommonCSS_AST = function(_rules) {
     var that, _arr;
     that = this;
     _arr = [];
     each(_rules, function(cc_item, cc_index, cc_list) {
       if (cc_item.type === 'rule') {
-        if (that.isConditionalSelector(that.getSelectors_AST(cc_item))) {
+        if (!that.isContainConditionalSelector(that.getSelectors_AST(cc_item))) {
           _arr.push(cc_index);
         }
       }
@@ -183,25 +220,109 @@ cssSeparation = (function() {
     return _arr;
   };
 
-  cssSeparation.prototype.generateCCFile = function(conditionalClass, _output) {
-    var filterSelector, idxs, newRules, that, traversingResultCache, _rules;
+  cssSeparation.prototype.getIdxListOfConditialCSS_AST = function(_rules) {
+    var that, _arr;
     that = this;
-    newRules = [];
-    traversingResultCache = '';
-    _debug('log', '需要单独操作的文件是：' + that.cssFiles);
-    _rules = that.getRules_AST(that.cssFiles);
-    idxs = that.getIdxListOfRuleContainCC(_rules);
-    _debug('log', '包含条件类的规则的对象的索引（位置）集合是：' + idxs);
-    each(idxs, function(item, index, list) {
-      newRules.push(_rules[+item]);
+    _arr = [];
+    each(_rules, function(cc_item, cc_index, cc_list) {
+      if (cc_item.type === 'rule') {
+        if (that.isContainConditionalSelector(that.getSelectors_AST(cc_item))) {
+          _arr.push(cc_index);
+        }
+      }
     });
-    _debug('log', '仅存在包含条件类的规则的对象的AST：' + newRules);
-    filterSelector = function(currentRule) {
+    return _arr;
+  };
+
+  cssSeparation.prototype.getCommonStylesheets = function(_rules) {
+    var idxs, rulesJustContainCommonCSS, that;
+    that = this;
+    rulesJustContainCommonCSS = [];
+    idxs = that.getIdxListOfCommonCSS_AST(_rules);
+    each(idxs, function(item, index, list) {
+      rulesJustContainCommonCSS.push(_rules[+item]);
+    });
+    return rulesJustContainCommonCSS;
+  };
+
+  cssSeparation.prototype.getStylesheetsContainConditionalClass = function(_rules) {
+    var idxs, rulesJustContainConditionalClass, that;
+    that = this;
+    rulesJustContainConditionalClass = [];
+    idxs = that.getIdxListOfConditialCSS_AST(_rules);
+    each(idxs, function(item, index, list) {
+      rulesJustContainConditionalClass.push(_rules[+item]);
+    });
+    return rulesJustContainConditionalClass;
+  };
+
+  cssSeparation.prototype.generateCommonStylesheets = function(rules_AST, _output) {
+    var filterSelectors_AST, opts, that, traversingResultCache;
+    that = this;
+    opts = that.options;
+    traversingResultCache = '';
+    filterSelectors_AST = function(currentRule) {
+      var slt_ast, strSlt, _sltCache;
+      strSlt = '';
+      _sltCache = [];
+      slt_ast = that.getSelectors_AST(currentRule);
+      if (collectionSize(slt_ast) >= 2) {
+        each(slt_ast, function(slts_item, slts_index, slts_list) {
+          _sltCache.push(slts_item);
+        });
+        if (opts.beautify) {
+          strSlt += _sltCache.join(',\n');
+        } else {
+          strSlt += _sltCache.join(',');
+        }
+      } else {
+        strSlt += trim(slt_ast[0]);
+      }
+      return strSlt;
+    };
+    each(rules_AST, function(nr_item, nr_index, nr_list) {
+      if (nr_item.type === 'rule') {
+        traversingResultCache += filterSelectors_AST(nr_item);
+        each(that.getDeclarations_AST(nr_item), function(_item, _index, _list) {
+          if (_index === 0) {
+            if (opts.beautify) {
+              traversingResultCache += '\u0020{\n';
+            } else {
+              traversingResultCache += '{';
+            }
+          }
+          if (!isUndefined(_item.property)) {
+            if (opts.beautify) {
+              traversingResultCache += '\n\t' + _item.property + ': ' + _item.value + ';\n';
+            } else {
+              traversingResultCache += _item.property + ':' + _item.value + ';';
+            }
+          }
+          if (_index === (collectionSize(_list) - 1)) {
+            if (opts.beautify) {
+              traversingResultCache += '\n}\n\n';
+            } else {
+              traversingResultCache += '}';
+            }
+          }
+        });
+      }
+    });
+    if (fnUtil.isStringAndNotEmpty(traversingResultCache)) {
+      that.createFile(traversingResultCache, _output);
+    }
+  };
+
+  cssSeparation.prototype.generateConditionalStylesheets = function(rules_AST, conditionalClass, _output) {
+    var filterSelectors_AST, opts, that, traversingResultCache;
+    that = this;
+    opts = that.options;
+    traversingResultCache = '';
+    filterSelectors_AST = function(currentRule) {
       var slt_ast, strSlt, _slt, _sltCache;
       strSlt = '';
       _sltCache = [];
       slt_ast = that.getSelectors_AST(currentRule);
-      _debug('log', '当前AST规则包含的 "selectors" 属性的值是：' + slt_ast);
       if (collectionSize(slt_ast) >= 2) {
         each(slt_ast, function(slts_item, slts_index, slts_list) {
           if (hasStr(slts_item, conditionalClass)) {
@@ -209,7 +330,7 @@ cssSeparation = (function() {
           }
         });
         if (collectionSize(_sltCache) >= 2) {
-          if (that.options.beautify) {
+          if (opts.beautify) {
             strSlt += _sltCache.join(',\n');
           } else {
             strSlt += _sltCache.join(',');
@@ -225,29 +346,29 @@ cssSeparation = (function() {
       }
       return strSlt;
     };
-    each(newRules, function(nr_item, nr_index, nr_list) {
+    each(rules_AST, function(nr_item, nr_index, nr_list) {
       var sltFltRslt;
       if (nr_item.type === 'rule') {
-        sltFltRslt = filterSelector(nr_item);
+        sltFltRslt = filterSelectors_AST(nr_item);
         if (!isEmpty(sltFltRslt)) {
           traversingResultCache += sltFltRslt;
           each(that.getDeclarations_AST(nr_item), function(_item, _index, _list) {
             if (_index === 0) {
-              if (that.options.beautify) {
+              if (opts.beautify) {
                 traversingResultCache += '\u0020{\n';
               } else {
                 traversingResultCache += '{';
               }
             }
             if (!isUndefined(_item.property)) {
-              if (that.options.beautify) {
+              if (opts.beautify) {
                 traversingResultCache += '\n\t' + _item.property + ': ' + _item.value + ';\n';
               } else {
                 traversingResultCache += _item.property + ':' + _item.value + ';';
               }
             }
             if (_index === (collectionSize(_list) - 1)) {
-              if (that.options.beautify) {
+              if (opts.beautify) {
                 traversingResultCache += '\n}\n\n';
               } else {
                 traversingResultCache += '}';
@@ -257,17 +378,13 @@ cssSeparation = (function() {
         }
       }
     });
-    _debug('log', '输出遍历结果：' + traversingResultCache);
-    if (isString(traversingResultCache) && !isEmpty(traversingResultCache)) {
-      _debug('log', '遍历结果写至：' + _output);
+    if (fnUtil.isStringAndNotEmpty(traversingResultCache)) {
       that.createFile(traversingResultCache, _output);
-      _debug('log', '------------------------------------------------------------------------------------------');
     }
-    if (isString(traversingResultCache) && isEmpty(traversingResultCache)) {
+    if (fnUtil.isStringAndEmpty(traversingResultCache)) {
       if (!that.options.mute) {
         util.log('There is no stylesheets contain "' + conditionalClass + '" conditional class.');
       }
-      _debug('log', '------------------------------------------------------------------------------------------');
     }
   };
 

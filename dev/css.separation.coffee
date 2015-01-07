@@ -93,6 +93,26 @@ _debug = (outputType, outputContent) ->
 
 
 
+fnUtil =
+
+	isStringAndNotEmpty: (obj) ->
+
+		if isString(obj) and not isEmpty(obj) then true else false
+
+	isStringAndEmpty: (obj) ->
+
+		if isString(obj) and isEmpty(obj) then true else false
+
+	isArrayAndNotEmpty: (obj) ->
+
+		if isArray(obj) and not isEmpty(obj) then true else false
+
+	isObjectBraceAndNotEmpty: (obj) ->
+
+		if isObjectBrace(obj) and not isEmpty(obj) then true else false
+
+
+
 # @class cssSeparation
 # @description
 # eparate content like conditional stylesheets(and soon...) from "*.css" file
@@ -109,75 +129,66 @@ class cssSeparation
 
 			@options = extend _default, options
 
-			_debug 'log', 'merged Configuration...'
-
 		else
 
 			@options = _default
 
-			_debug 'log', 'not merged Configuration...'
-
 	# @param {string | array} cssFiles Stylesheet(s) need(s) to be separated.
-	deal: (@cssFiles) ->
+	deal: (cssFiles) ->
 
-		that = @
+		@cssFiles = trim cssFiles
 
-		# 假设传入的是单个文件（数据类型为字符串）:
-		# 	获取文件名；
-		# 	获取该文件所在文件夹相对路径；
-		# 	为该文件生成独属于该文件的所有符合预设分离条件的文件。
-		# 	处理该文件，并把结果分别写到对应文件中；
-		# 假设传入的是多个文件（数据类型为数组）:
-		#
-		# ...
+		fileName = @getBasename @cssFiles, '.css'
 
-		fileName = that.getBasename cssFiles, '.css'
+		relativePath = @getDirname @cssFiles
 
-		relativePath = that.getDirname cssFiles
-
-		that.generateFile relativePath, fileName
+		@generateFile relativePath, fileName
 
 		return
 
-	getBasename: (file, ext) ->
+	getBasename: (fileWithPath, ext) ->
 
-		if isString(file) and not isEmpty(file)
+		if fnUtil.isStringAndNotEmpty fileWithPath
 
-			if isString(ext) and not isEmpty(file)
+			if fnUtil.isStringAndNotEmpty(ext) then path.basename(fileWithPath, ext) else path.basename fileWithPath
 
-				path.basename file, ext
+	getDirname: (fileWithPath) ->
 
-			else
-
-				path.basename file
-
-	getDirname: (file) ->
-
-		_dirname = path.dirname file
+		_dirname = path.dirname fileWithPath
 
 		if _dirname is '.' then './' else _dirname
 
 	generateFile: (relativePath, belong) ->
 
-		that = @
+		that   = @
 
-		if that.options.filterConditionalStylesheets
+		opts   = that.options
 
-			_debug 'log', '需要过滤出条件样式 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+		$rules = that.getRules_AST that.cssFiles
 
-			if isArray(that.options.conditionalClass) and not isEmpty(that.options.conditionalClass)
+		if opts.filterCommonStylesheets
 
-				each that.options.conditionalClass, (item, index, list) ->
+			_newFile = belong + '.common.css'
+
+			_output  = relativePath + '/' + _newFile
+
+			commonStylesheets_AST = that.getCommonStylesheets $rules
+
+			that.generateCommonStylesheets  commonStylesheets_AST, _output
+
+		if opts.filterConditionalStylesheets
+
+			conditionalStylesheets_AST = that.getStylesheetsContainConditionalClass $rules
+
+			if fnUtil.isArrayAndNotEmpty(opts.conditionalClass)
+
+				each opts.conditionalClass, (item, index, list) ->
 
 					_newFile = belong + item + '.css'
 
-					_output = relativePath + '/' + _newFile
+					_output  = relativePath + '/' + _newFile
 
-					that.generateCCFile item, _output
-
-					_debug 'log', '需要被生成文件的命名是：' + _newFile
-
-					_debug 'log', '需要被生成文件的路径是：' + _output
+					that.generateConditionalStylesheets conditionalStylesheets_AST, item, _output
 
 					return
 
@@ -185,17 +196,15 @@ class cssSeparation
 
 	createFile: (_content, _output) ->
 
-		if isString(_content) and isString(_output)
+		if fnUtil.isStringAndNotEmpty(_content) and fnUtil.isStringAndNotEmpty(_output)
 
 			fs.writeFileSync _output, _content
-
-			_debug 'log', '已写入文件。'
 
 		return
 
 	getSource: (cssFile) ->
 
-		if isString(cssFile) and not isEmpty(cssFile)
+		if fnUtil.isStringAndNotEmpty cssFile
 
 			fs.readFileSync cssFile,
 
@@ -203,37 +212,43 @@ class cssSeparation
 
 	getAST: (cssFile) ->
 
-		if isString(cssFile) and not isEmpty(cssFile)
+		if fnUtil.isStringAndNotEmpty cssFile
 
 			css.parse @getSource cssFile
 
 	getRules_AST: (cssFile) ->
 
-		@getAST(cssFile).stylesheet.rules
+		if fnUtil.isStringAndNotEmpty cssFile
+
+			@getAST(cssFile).stylesheet.rules
 
 	getSelectors_AST: (currentRule) ->
 
-		currentRule.selectors
+		if fnUtil.isObjectBraceAndNotEmpty currentRule
+
+			currentRule.selectors
 
 	getDeclarations_AST: (currentRule) ->
 
 		currentRule.declarations
 
 	# @description Know if the value of selector key which in the current rule contain conditional class.
-	# @param {string} selector-the value of the seletor key of current rule
+	# @param {array} selector-the value of the seletor key of current rule
 	# @returns {boolean} If the value of seletor key which in the current rule contain conditional class, return true, otherwise return false.
 	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
-	isConditionalSelector: (selector) ->
+	isContainConditionalSelector: (selector) ->
 
-		that = @
+		that                 = @
+
+		opts                 = that.options
 
 		identificationResult = undefined
 
-		if isArray(selector) and not isEmpty(selector)
+		if fnUtil.isArrayAndNotEmpty selector
 
-			each that.options.conditionalClass, (cs_item, cs_index, cs_list) ->
+			each opts.conditionalClass, (cs_item, cs_index, cs_list) ->
 
-				if hasStr selector, cs_item
+				if hasStr selector.toString(), cs_item
 
 					identificationResult = true
 
@@ -241,8 +256,27 @@ class cssSeparation
 
 		if isUndefined identificationResult then false else identificationResult
 
+	# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取不包含条件类的规则的对象的索引（位置）
+	getIdxListOfCommonCSS_AST: (_rules) ->
+
+		that = @
+
+		_arr = []
+
+		each _rules, (cc_item, cc_index, cc_list) ->
+
+			if cc_item.type is 'rule'
+
+				if not that.isContainConditionalSelector that.getSelectors_AST cc_item
+
+					_arr.push cc_index
+
+			return
+
+		_arr
+
 	# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取包含条件类的规则的对象的索引（位置）
-	getIdxListOfRuleContainCC: (_rules) ->
+	getIdxListOfConditialCSS_AST: (_rules) ->
 
 		that = @
 
@@ -252,7 +286,7 @@ class cssSeparation
 
 			if cc_item.type is 'rule'
 
-				if that.isConditionalSelector that.getSelectors_AST(cc_item)
+				if that.isContainConditionalSelector that.getSelectors_AST cc_item
 
 					_arr.push cc_index
 
@@ -260,39 +294,119 @@ class cssSeparation
 
 		_arr
 
-	generateCCFile: (conditionalClass, _output)->
+	getCommonStylesheets: (_rules) ->
 
 		that = @
 
-		newRules = []
+		rulesJustContainCommonCSS = []
 
-		traversingResultCache = ''
-
-		_debug 'log', '需要单独操作的文件是：' + that.cssFiles
-
-		_rules = that.getRules_AST that.cssFiles
-
-		idxs = that.getIdxListOfRuleContainCC _rules
-
-		_debug 'log', '包含条件类的规则的对象的索引（位置）集合是：' + idxs
+		idxs = that.getIdxListOfCommonCSS_AST _rules
 
 		each idxs, (item, index, list) ->
 
-			newRules.push _rules[+item]
+			rulesJustContainCommonCSS.push _rules[+item]
 
 			return
 
-		_debug 'log', '仅存在包含条件类的规则的对象的AST：' + newRules
+		rulesJustContainCommonCSS
 
-		filterSelector = (currentRule) ->
+	getStylesheetsContainConditionalClass: (_rules) ->
 
-			strSlt=''
+		that = @
+
+		rulesJustContainConditionalClass = []
+
+		idxs = that.getIdxListOfConditialCSS_AST _rules
+
+		each idxs, (item, index, list) ->
+
+			rulesJustContainConditionalClass.push _rules[+item]
+
+			return
+
+		rulesJustContainConditionalClass
+
+	generateCommonStylesheets: (rules_AST, _output) ->
+
+		that                  = @
+
+		opts                  = that.options
+
+		traversingResultCache = ''
+
+		filterSelectors_AST   = (currentRule) ->
+
+			strSlt    = ''
 
 			_sltCache = []
 
-			slt_ast = that.getSelectors_AST(currentRule)
+			slt_ast   = that.getSelectors_AST(currentRule)
 
-			_debug 'log', '当前AST规则包含的 "selectors" 属性的值是：' + slt_ast
+			if collectionSize(slt_ast) >= 2
+
+				each slt_ast, (slts_item, slts_index, slts_list) ->
+
+					_sltCache.push slts_item
+
+					return
+
+				if opts.beautify then strSlt += _sltCache.join(',\n') else strSlt += _sltCache.join(',')
+
+			else
+
+				strSlt += trim slt_ast[0]
+
+			strSlt
+
+		each rules_AST, (nr_item, nr_index, nr_list) ->
+
+			if nr_item.type is 'rule'
+
+				traversingResultCache += filterSelectors_AST(nr_item)
+
+				each that.getDeclarations_AST(nr_item), (_item, _index, _list) ->
+
+					if _index is 0
+
+						if opts.beautify then traversingResultCache += '\u0020{\n' else traversingResultCache += '{'
+
+					if not isUndefined _item.property
+
+						if opts.beautify
+
+						then traversingResultCache += '\n\t' + _item.property + ': ' + _item.value + ';\n'
+
+						else traversingResultCache += _item.property + ':' + _item.value + ';'
+
+					if _index is (collectionSize(_list) - 1)
+
+						if opts.beautify then traversingResultCache += '\n}\n\n' else traversingResultCache += '}'
+
+					return
+
+			return
+
+		if fnUtil.isStringAndNotEmpty(traversingResultCache)
+
+			that.createFile traversingResultCache, _output
+
+		return
+
+	generateConditionalStylesheets: (rules_AST, conditionalClass, _output) ->
+
+		that                  = @
+
+		opts                  = that.options
+
+		traversingResultCache = ''
+
+		filterSelectors_AST   = (currentRule) ->
+
+			strSlt    = ''
+
+			_sltCache = []
+
+			slt_ast   = that.getSelectors_AST(currentRule)
 
 			if collectionSize(slt_ast) >= 2
 
@@ -306,7 +420,7 @@ class cssSeparation
 
 				if collectionSize(_sltCache) >= 2
 
-					if that.options.beautify then strSlt += _sltCache.join(',\n') else strSlt += _sltCache.join(',')
+					if opts.beautify then strSlt += _sltCache.join(',\n') else strSlt += _sltCache.join(',')
 
 				else if not isEmpty _sltCache
 
@@ -322,11 +436,11 @@ class cssSeparation
 
 			strSlt
 
-		each newRules, (nr_item, nr_index, nr_list) ->
+		each rules_AST, (nr_item, nr_index, nr_list) ->
 
 			if nr_item.type is 'rule'
 
-				sltFltRslt = filterSelector(nr_item)
+				sltFltRslt = filterSelectors_AST nr_item
 
 				if not isEmpty sltFltRslt
 
@@ -336,11 +450,11 @@ class cssSeparation
 
 						if _index is 0
 
-							if that.options.beautify then traversingResultCache += '\u0020{\n' else traversingResultCache += '{'
+							if opts.beautify then traversingResultCache += '\u0020{\n' else traversingResultCache += '{'
 
 						if not isUndefined _item.property
 
-							if that.options.beautify
+							if opts.beautify
 
 							then traversingResultCache += '\n\t' + _item.property + ': ' + _item.value + ';\n'
 
@@ -348,29 +462,21 @@ class cssSeparation
 
 						if _index is (collectionSize(_list) - 1)
 
-							if that.options.beautify then traversingResultCache += '\n}\n\n' else traversingResultCache += '}'
+							if opts.beautify then traversingResultCache += '\n}\n\n' else traversingResultCache += '}'
 
 						return
 
 			return
 
-		_debug 'log', '输出遍历结果：' + traversingResultCache
-
-		if isString(traversingResultCache) and not isEmpty(traversingResultCache)
-
-			_debug 'log', '遍历结果写至：' + _output
+		if fnUtil.isStringAndNotEmpty traversingResultCache
 
 			that.createFile traversingResultCache, _output
 
-			_debug 'log', '------------------------------------------------------------------------------------------'
-
-		if isString(traversingResultCache) and isEmpty(traversingResultCache)
+		if fnUtil.isStringAndEmpty traversingResultCache
 
 			if not that.options.mute
 
 				util.log 'There is no stylesheets contain "' + conditionalClass + '" conditional class.'
-
-			_debug 'log', '------------------------------------------------------------------------------------------'
 
 		return
 
