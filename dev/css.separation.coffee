@@ -46,8 +46,13 @@ debug          = true
 # @description Default options.
 # @type
 #	{object}   _default
-#	{boolean}  _default.beautify
+#	{boolean}  _default.mute
+#	{string}   _default.dest
 #	{array}    _default.conditionalClass
+#	{boolean}  _default.beautify
+#	{boolean}  _default.filterCommonCSS
+#	{boolean}  _default.filterConditionalCSS
+#	{boolean}  _default.filterMediaCSS
 # @author 沈维忠 ( Tony Stark / Shen Weizhong )
 _default =
 
@@ -55,18 +60,23 @@ _default =
 
 	dest: ''
 
-	conditionalClass: ['.ie6', '.ie7', '.ie8', '.ie9', '.ie10', '.ie11']
+	conditionalClass: []
 
 	beautify: false
 
-	filterCommonStylesheets: true
+	filterCommonCSS: true
 
-	filterConditionalStylesheets: true
+	filterConditionalCSS: true
 
-	filterMediaQueryStylesheets: true
+	filterMediaCSS: true
 
 
 
+# @name
+# @description
+# @param
+# @param
+# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 _debug = (outputType, outputContent) ->
 
 	if debug
@@ -81,7 +91,7 @@ _debug = (outputType, outputContent) ->
 
 				pluginName = 'CSS SEPARATION'
 
-				err = new util.PluginError pluginName, outputContent,
+				err        = new util.PluginError pluginName, outputContent,
 
 					showStack: true
 
@@ -93,17 +103,20 @@ _debug = (outputType, outputContent) ->
 
 
 
+# @name
+# @description
+# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 fnUtil =
 
-	isStringAndNotEmpty: (obj) ->
+	isStringAndNotEmpty:      (obj) ->
 
 		if isString(obj) and not isEmpty(obj) then true else false
 
-	isStringAndEmpty: (obj) ->
+	isStringAndEmpty:         (obj) ->
 
 		if isString(obj) and isEmpty(obj) then true else false
 
-	isArrayAndNotEmpty: (obj) ->
+	isArrayAndNotEmpty:       (obj) ->
 
 		if isArray(obj) and not isEmpty(obj) then true else false
 
@@ -121,8 +134,9 @@ fnUtil =
 # @author 沈维忠 ( Tony Stark / Shen Weizhong )
 class cssSeparation
 
-    # @constructs
-    # @param {object} options Configuration for the instance.
+	# @constructs
+	# @param {object} options Configuration for the instance.
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	constructor: (options) ->
 
 		if isObjectBrace(options) and not isEmpty(options)
@@ -133,32 +147,32 @@ class cssSeparation
 
 			@options = _default
 
+
+
+	# @name
+	# @description
 	# @param {string | array} cssFiles Stylesheet(s) need(s) to be separated.
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	deal: (cssFiles) ->
 
-		@cssFiles = trim cssFiles
+		@cssFiles    = trim cssFiles
 
-		fileName = @getBasename @cssFiles, '.css'
+		fileName     = @getBasename @cssFiles, '.css'
 
 		relativePath = @getDirname @cssFiles
 
-		@generateFile relativePath, fileName
+		@genFiles relativePath, fileName
 
 		return
 
-	getBasename: (fileWithPath, ext) ->
 
-		if fnUtil.isStringAndNotEmpty fileWithPath
 
-			if fnUtil.isStringAndNotEmpty(ext) then path.basename(fileWithPath, ext) else path.basename fileWithPath
-
-	getDirname: (fileWithPath) ->
-
-		_dirname = path.dirname fileWithPath
-
-		if _dirname is '.' then './' else _dirname
-
-	generateFile: (relativePath, belong) ->
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	genFiles: (relativePath, belong) ->
 
 		that   = @
 
@@ -166,19 +180,19 @@ class cssSeparation
 
 		$rules = that.getRules_AST that.cssFiles
 
-		if opts.filterCommonStylesheets
+		if opts.filterCommonCSS
 
-			_newFile = belong + '.common.css'
+			_newFile      = belong + '.common.css'
 
-			_output  = relativePath + '/' + _newFile
+			_output       = relativePath + '/' + _newFile
 
-			commonStylesheets_AST = that.getCommonStylesheets $rules
+			commonCSS_AST = that.getSameClassOfRules 'common', $rules
 
-			that.generateCommonStylesheets  commonStylesheets_AST, _output
+			that.genCommonCSS  commonCSS_AST, _output
 
-		if opts.filterConditionalStylesheets
+		if opts.filterConditionalCSS
 
-			conditionalStylesheets_AST = that.getStylesheetsContainConditionalClass $rules
+			conditionalCSS_AST = that.getSameClassOfRules 'condition', $rules
 
 			if fnUtil.isArrayAndNotEmpty(opts.conditionalClass)
 
@@ -188,12 +202,54 @@ class cssSeparation
 
 					_output  = relativePath + '/' + _newFile
 
-					that.generateConditionalStylesheets conditionalStylesheets_AST, item, _output
+					that.genConditionalCSS conditionalCSS_AST, item, _output
 
 					return
 
+		if opts.filterMediaCSS
+
+			_newFile     = belong + '.media.css'
+
+			_output      = relativePath + '/' + _newFile
+
+			mediaCSS_AST = that.getSameClassOfRules 'media', $rules
+
+			that.genMediaCSS mediaCSS_AST, _output
+
 		return
 
+
+
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	getBasename: (fileWithPath, ext) ->
+
+		if fnUtil.isStringAndNotEmpty fileWithPath
+
+			if fnUtil.isStringAndNotEmpty(ext) then path.basename(fileWithPath, ext) else path.basename fileWithPath
+
+
+
+	# @name
+	# @description
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	getDirname: (fileWithPath) ->
+
+		_dirname = path.dirname fileWithPath
+
+		if _dirname is '.' then './' else _dirname
+
+
+
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	createFile: (_content, _output) ->
 
 		if fnUtil.isStringAndNotEmpty(_content) and fnUtil.isStringAndNotEmpty(_output)
@@ -202,6 +258,12 @@ class cssSeparation
 
 		return
 
+
+
+	# @name
+	# @description
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	getSource: (cssFile) ->
 
 		if fnUtil.isStringAndNotEmpty cssFile
@@ -210,24 +272,48 @@ class cssSeparation
 
 				encoding: 'utf8'
 
+
+
+	# @name
+	# @description
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	getAST: (cssFile) ->
 
 		if fnUtil.isStringAndNotEmpty cssFile
 
 			css.parse @getSource cssFile
 
+
+
+	# @name
+	# @description
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	getRules_AST: (cssFile) ->
 
 		if fnUtil.isStringAndNotEmpty cssFile
 
 			@getAST(cssFile).stylesheet.rules
 
+
+
+	# @name
+	# @description
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	getSelectors_AST: (currentRule) ->
 
 		if fnUtil.isObjectBraceAndNotEmpty currentRule
 
 			currentRule.selectors
 
+
+
+	# @name
+	# @description
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
 	getDeclarations_AST: (currentRule) ->
 
 		currentRule.declarations
@@ -256,77 +342,95 @@ class cssSeparation
 
 		if isUndefined identificationResult then false else identificationResult
 
-	# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取不包含条件类的规则的对象的索引（位置）
-	getIdxListOfCommonCSS_AST: (_rules) ->
+
+
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	getPositionsOfSameClassOfRules: (category, _rules) ->
 
 		that = @
 
 		_arr = []
 
-		each _rules, (cc_item, cc_index, cc_list) ->
+		switch category.toLowerCase()
 
-			if cc_item.type is 'rule'
+			# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取不包含条件类的规则的对象的索引（位置）
+			when 'common'
 
-				if not that.isContainConditionalSelector that.getSelectors_AST cc_item
+				each _rules, (item, index, list) ->
 
-					_arr.push cc_index
+					if item.type is 'rule'
 
-			return
+						if not that.isContainConditionalSelector that.getSelectors_AST item
+
+							_arr.push index
+
+					return
+
+			# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取包含条件类的规则的对象的索引（位置）
+			when 'condition'
+
+				each _rules, (item, index, list)->
+
+					if item.type is 'rule'
+
+						if that.isContainConditionalSelector that.getSelectors_AST item
+
+							_arr.push index
+
+					return
+
+			# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取包含 Media Query 规则的对象的索引（位置）
+			when 'media'
+
+				each _rules, (item, index, list)->
+
+					if item.type is 'media'
+
+						_arr.push index
+
+					return
+
+			else
+
+				util.log '#getPositionsOfSameClassOfRules(): Please choose the right category of stylesheet.'
 
 		_arr
 
-	# @description 在 "CSSOM" 的 "rules" 对象（数组）中获取包含条件类的规则的对象的索引（位置）
-	getIdxListOfConditialCSS_AST: (_rules) ->
 
-		that = @
 
-		_arr = []
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	getSameClassOfRules: (category, _rules) ->
 
-		each _rules, (cc_item, cc_index, cc_list)->
+		that     = @
 
-			if cc_item.type is 'rule'
+		newRules = []
 
-				if that.isContainConditionalSelector that.getSelectors_AST cc_item
+		pos      = that.getPositionsOfSameClassOfRules category.toLowerCase(), _rules
 
-					_arr.push cc_index
+		each pos, (item, index, list) ->
 
-			return
-
-		_arr
-
-	getCommonStylesheets: (_rules) ->
-
-		that = @
-
-		rulesJustContainCommonCSS = []
-
-		idxs = that.getIdxListOfCommonCSS_AST _rules
-
-		each idxs, (item, index, list) ->
-
-			rulesJustContainCommonCSS.push _rules[+item]
+			newRules.push _rules[+item]
 
 			return
 
-		rulesJustContainCommonCSS
+		newRules
 
-	getStylesheetsContainConditionalClass: (_rules) ->
 
-		that = @
 
-		rulesJustContainConditionalClass = []
-
-		idxs = that.getIdxListOfConditialCSS_AST _rules
-
-		each idxs, (item, index, list) ->
-
-			rulesJustContainConditionalClass.push _rules[+item]
-
-			return
-
-		rulesJustContainConditionalClass
-
-	generateCommonStylesheets: (rules_AST, _output) ->
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	genCommonCSS: (rules_AST, _output) ->
 
 		that                  = @
 
@@ -392,7 +496,15 @@ class cssSeparation
 
 		return
 
-	generateConditionalStylesheets: (rules_AST, conditionalClass, _output) ->
+
+
+	# @name
+	# @description
+	# @param
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	genConditionalCSS: (rules_AST, conditionalClass, _output) ->
 
 		that                  = @
 
@@ -477,6 +589,95 @@ class cssSeparation
 			if not that.options.mute
 
 				util.log 'There is no stylesheets contain "' + conditionalClass + '" conditional class.'
+
+		return
+
+
+
+	# @name
+	# @description
+	# @param
+	# @param
+	# @author 沈维忠 ( Tony Stark / Shen Weizhong )
+	genMediaCSS: (rules_AST, _output) ->
+
+		that                  = @
+
+		opts                  = that.options
+
+		traversingResultCache = ''
+
+		filterSelectors_AST   = (currentRule) ->
+
+			strSlt    = ''
+
+			_sltCache = []
+
+			slt_ast   = that.getSelectors_AST(currentRule)
+
+			if collectionSize(slt_ast) >= 2
+
+				each slt_ast, (slts_item, slts_index, slts_list) ->
+
+					if opts.beautify then _sltCache.push '\t' + slts_item else _sltCache.push slts_item
+
+					return
+
+				if opts.beautify then strSlt += _sltCache.join(',\n') else strSlt += _sltCache.join(',')
+
+			else
+
+				strSlt += trim slt_ast[0]
+
+			strSlt
+
+		if fnUtil.isArrayAndNotEmpty rules_AST
+
+			each rules_AST, (item, index, list) ->
+
+				if opts.beautify
+
+					traversingResultCache += '@media ' + trim(item.media)
+
+				else
+
+					traversingResultCache += '@media ' + trim(item.media).replace /[\n]+/g, ''
+
+				if opts.beautify then traversingResultCache += '\u0020{\n\n' else traversingResultCache += '{'
+
+				each item.rules, (_item, _index, _list) ->
+
+					traversingResultCache += filterSelectors_AST _item
+
+					each that.getDeclarations_AST(_item), (__item, __index, __list) ->
+
+						if __index is 0
+
+							if opts.beautify then traversingResultCache += '\u0020{\n' else traversingResultCache += '{'
+
+						if not isUndefined __item.property
+
+							if opts.beautify
+
+							then traversingResultCache += '\n\t\t' + __item.property + ': ' + __item.value + ';\n'
+
+							else traversingResultCache += __item.property + ':' + __item.value + ';'
+
+						if __index is (collectionSize(__list) - 1)
+
+							if opts.beautify then traversingResultCache += '\n\t}\n\n' else traversingResultCache += '}'
+
+						return
+
+					return
+
+				if opts.beautify then traversingResultCache += '\n}\n\n' else traversingResultCache += '}'
+
+				return
+
+		if fnUtil.isStringAndNotEmpty(traversingResultCache)
+
+			that.createFile traversingResultCache, _output
 
 		return
 

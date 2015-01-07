@@ -34,11 +34,11 @@ debug = true;
 _default = {
   mute: false,
   dest: '',
-  conditionalClass: ['.ie6', '.ie7', '.ie8', '.ie9', '.ie10', '.ie11'],
+  conditionalClass: [],
   beautify: false,
-  filterCommonStylesheets: true,
-  filterConditionalStylesheets: true,
-  filterMediaQueryStylesheets: true
+  filterCommonCSS: true,
+  filterConditionalCSS: true,
+  filterMediaCSS: true
 };
 
 _debug = function(outputType, outputContent) {
@@ -105,7 +105,36 @@ cssSeparation = (function() {
     this.cssFiles = trim(cssFiles);
     fileName = this.getBasename(this.cssFiles, '.css');
     relativePath = this.getDirname(this.cssFiles);
-    this.generateFile(relativePath, fileName);
+    this.genFiles(relativePath, fileName);
+  };
+
+  cssSeparation.prototype.genFiles = function(relativePath, belong) {
+    var $rules, commonCSS_AST, conditionalCSS_AST, mediaCSS_AST, opts, that, _newFile, _output;
+    that = this;
+    opts = that.options;
+    $rules = that.getRules_AST(that.cssFiles);
+    if (opts.filterCommonCSS) {
+      _newFile = belong + '.common.css';
+      _output = relativePath + '/' + _newFile;
+      commonCSS_AST = that.getSameClassOfRules('common', $rules);
+      that.genCommonCSS(commonCSS_AST, _output);
+    }
+    if (opts.filterConditionalCSS) {
+      conditionalCSS_AST = that.getSameClassOfRules('condition', $rules);
+      if (fnUtil.isArrayAndNotEmpty(opts.conditionalClass)) {
+        each(opts.conditionalClass, function(item, index, list) {
+          _newFile = belong + item + '.css';
+          _output = relativePath + '/' + _newFile;
+          that.genConditionalCSS(conditionalCSS_AST, item, _output);
+        });
+      }
+    }
+    if (opts.filterMediaCSS) {
+      _newFile = belong + '.media.css';
+      _output = relativePath + '/' + _newFile;
+      mediaCSS_AST = that.getSameClassOfRules('media', $rules);
+      that.genMediaCSS(mediaCSS_AST, _output);
+    }
   };
 
   cssSeparation.prototype.getBasename = function(fileWithPath, ext) {
@@ -125,29 +154,6 @@ cssSeparation = (function() {
       return './';
     } else {
       return _dirname;
-    }
-  };
-
-  cssSeparation.prototype.generateFile = function(relativePath, belong) {
-    var $rules, commonStylesheets_AST, conditionalStylesheets_AST, opts, that, _newFile, _output;
-    that = this;
-    opts = that.options;
-    $rules = that.getRules_AST(that.cssFiles);
-    if (opts.filterCommonStylesheets) {
-      _newFile = belong + '.common.css';
-      _output = relativePath + '/' + _newFile;
-      commonStylesheets_AST = that.getCommonStylesheets($rules);
-      that.generateCommonStylesheets(commonStylesheets_AST, _output);
-    }
-    if (opts.filterConditionalStylesheets) {
-      conditionalStylesheets_AST = that.getStylesheetsContainConditionalClass($rules);
-      if (fnUtil.isArrayAndNotEmpty(opts.conditionalClass)) {
-        each(opts.conditionalClass, function(item, index, list) {
-          _newFile = belong + item + '.css';
-          _output = relativePath + '/' + _newFile;
-          that.generateConditionalStylesheets(conditionalStylesheets_AST, item, _output);
-        });
-      }
     }
   };
 
@@ -206,57 +212,54 @@ cssSeparation = (function() {
     }
   };
 
-  cssSeparation.prototype.getIdxListOfCommonCSS_AST = function(_rules) {
+  cssSeparation.prototype.getPositionsOfSameClassOfRules = function(category, _rules) {
     var that, _arr;
     that = this;
     _arr = [];
-    each(_rules, function(cc_item, cc_index, cc_list) {
-      if (cc_item.type === 'rule') {
-        if (!that.isContainConditionalSelector(that.getSelectors_AST(cc_item))) {
-          _arr.push(cc_index);
-        }
-      }
-    });
+    switch (category.toLowerCase()) {
+      case 'common':
+        each(_rules, function(item, index, list) {
+          if (item.type === 'rule') {
+            if (!that.isContainConditionalSelector(that.getSelectors_AST(item))) {
+              _arr.push(index);
+            }
+          }
+        });
+        break;
+      case 'condition':
+        each(_rules, function(item, index, list) {
+          if (item.type === 'rule') {
+            if (that.isContainConditionalSelector(that.getSelectors_AST(item))) {
+              _arr.push(index);
+            }
+          }
+        });
+        break;
+      case 'media':
+        each(_rules, function(item, index, list) {
+          if (item.type === 'media') {
+            _arr.push(index);
+          }
+        });
+        break;
+      default:
+        util.log('#getPositionsOfSameClassOfRules(): Please choose the right category of stylesheet.');
+    }
     return _arr;
   };
 
-  cssSeparation.prototype.getIdxListOfConditialCSS_AST = function(_rules) {
-    var that, _arr;
+  cssSeparation.prototype.getSameClassOfRules = function(category, _rules) {
+    var newRules, pos, that;
     that = this;
-    _arr = [];
-    each(_rules, function(cc_item, cc_index, cc_list) {
-      if (cc_item.type === 'rule') {
-        if (that.isContainConditionalSelector(that.getSelectors_AST(cc_item))) {
-          _arr.push(cc_index);
-        }
-      }
+    newRules = [];
+    pos = that.getPositionsOfSameClassOfRules(category.toLowerCase(), _rules);
+    each(pos, function(item, index, list) {
+      newRules.push(_rules[+item]);
     });
-    return _arr;
+    return newRules;
   };
 
-  cssSeparation.prototype.getCommonStylesheets = function(_rules) {
-    var idxs, rulesJustContainCommonCSS, that;
-    that = this;
-    rulesJustContainCommonCSS = [];
-    idxs = that.getIdxListOfCommonCSS_AST(_rules);
-    each(idxs, function(item, index, list) {
-      rulesJustContainCommonCSS.push(_rules[+item]);
-    });
-    return rulesJustContainCommonCSS;
-  };
-
-  cssSeparation.prototype.getStylesheetsContainConditionalClass = function(_rules) {
-    var idxs, rulesJustContainConditionalClass, that;
-    that = this;
-    rulesJustContainConditionalClass = [];
-    idxs = that.getIdxListOfConditialCSS_AST(_rules);
-    each(idxs, function(item, index, list) {
-      rulesJustContainConditionalClass.push(_rules[+item]);
-    });
-    return rulesJustContainConditionalClass;
-  };
-
-  cssSeparation.prototype.generateCommonStylesheets = function(rules_AST, _output) {
+  cssSeparation.prototype.genCommonCSS = function(rules_AST, _output) {
     var filterSelectors_AST, opts, that, traversingResultCache;
     that = this;
     opts = that.options;
@@ -313,7 +316,7 @@ cssSeparation = (function() {
     }
   };
 
-  cssSeparation.prototype.generateConditionalStylesheets = function(rules_AST, conditionalClass, _output) {
+  cssSeparation.prototype.genConditionalCSS = function(rules_AST, conditionalClass, _output) {
     var filterSelectors_AST, opts, that, traversingResultCache;
     that = this;
     opts = that.options;
@@ -385,6 +388,84 @@ cssSeparation = (function() {
       if (!that.options.mute) {
         util.log('There is no stylesheets contain "' + conditionalClass + '" conditional class.');
       }
+    }
+  };
+
+  cssSeparation.prototype.genMediaCSS = function(rules_AST, _output) {
+    var filterSelectors_AST, opts, that, traversingResultCache;
+    that = this;
+    opts = that.options;
+    traversingResultCache = '';
+    filterSelectors_AST = function(currentRule) {
+      var slt_ast, strSlt, _sltCache;
+      strSlt = '';
+      _sltCache = [];
+      slt_ast = that.getSelectors_AST(currentRule);
+      if (collectionSize(slt_ast) >= 2) {
+        each(slt_ast, function(slts_item, slts_index, slts_list) {
+          if (opts.beautify) {
+            _sltCache.push('\t' + slts_item);
+          } else {
+            _sltCache.push(slts_item);
+          }
+        });
+        if (opts.beautify) {
+          strSlt += _sltCache.join(',\n');
+        } else {
+          strSlt += _sltCache.join(',');
+        }
+      } else {
+        strSlt += trim(slt_ast[0]);
+      }
+      return strSlt;
+    };
+    if (fnUtil.isArrayAndNotEmpty(rules_AST)) {
+      each(rules_AST, function(item, index, list) {
+        if (opts.beautify) {
+          traversingResultCache += '@media ' + trim(item.media);
+        } else {
+          traversingResultCache += '@media ' + trim(item.media).replace(/[\n]+/g, '');
+        }
+        if (opts.beautify) {
+          traversingResultCache += '\u0020{\n\n';
+        } else {
+          traversingResultCache += '{';
+        }
+        each(item.rules, function(_item, _index, _list) {
+          traversingResultCache += filterSelectors_AST(_item);
+          each(that.getDeclarations_AST(_item), function(__item, __index, __list) {
+            if (__index === 0) {
+              if (opts.beautify) {
+                traversingResultCache += '\u0020{\n';
+              } else {
+                traversingResultCache += '{';
+              }
+            }
+            if (!isUndefined(__item.property)) {
+              if (opts.beautify) {
+                traversingResultCache += '\n\t\t' + __item.property + ': ' + __item.value + ';\n';
+              } else {
+                traversingResultCache += __item.property + ':' + __item.value + ';';
+              }
+            }
+            if (__index === (collectionSize(__list) - 1)) {
+              if (opts.beautify) {
+                traversingResultCache += '\n\t}\n\n';
+              } else {
+                traversingResultCache += '}';
+              }
+            }
+          });
+        });
+        if (opts.beautify) {
+          traversingResultCache += '\n}\n\n';
+        } else {
+          traversingResultCache += '}';
+        }
+      });
+    }
+    if (fnUtil.isStringAndNotEmpty(traversingResultCache)) {
+      that.createFile(traversingResultCache, _output);
     }
   };
 
