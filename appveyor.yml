@@ -2,7 +2,7 @@
 
 # Fix line endings in Windows. (runs before repo cloning)
 init:
-  - git config --global core.autocrlf input
+- git config --global core.autocrlf input
 
 # Test against these versions of Node.js.
 environment:
@@ -17,25 +17,34 @@ matrix:
 
 # Install scripts. (runs after repo cloning)
 install:
-  # Get the latest stable version of Node 0.STABLE.latest
-  - ps: Install-Product node $env:nodejs_version
-  # Gulp-specific stuff.
-  - npm install -g gulp
-  # Typical npm stuff.
-  - npm install
+# Get the latest stable version of Node 0.STABLE.latest
+- ps: Install-Product node $env:nodejs_version
+# Gulp-specific stuff.
+- npm install -g gulp
+- npm install -g coffee-script
+# Typical npm stuff.
+- npm install
 
 # Post-install test scripts.
 test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
-  # We test multiple Windows shells because of prior stdout buffering issues
-  # filed against Grunt. https://github.com/joyent/node/issues/3584
-  - ps: "npm test # PowerShell" # Pass comment to PS for easier debugging
-  - cmd: npm test
+- node --version
+- npm --version
+- gulp --version
+# We test multiple Windows shells because of prior stdout buffering issues
+# filed against Grunt. https://github.com/joyent/node/issues/3584
+- ps: "npm test # PowerShell" # Pass comment to PS for easier debugging
+- cmd: npm test
 
-# Don't actually build.
-build: off
+build:
+  parallel: true
+  verbosity: minimal
 
-# Set build version format here instead of in the admin panel.
-version: "{build}"
+version: 0.1.{build}
+
+notifications:
+- provider: Email
+  to:
+  - swzyocowboy@icloud.com
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
