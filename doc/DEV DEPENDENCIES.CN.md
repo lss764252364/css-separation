@@ -5,11 +5,11 @@
 
 + [*Node.js*](http://nodejs.org/ '点击 · Click')
 
++ [*NPM*](http://npmjs.org/ '点击 · Click')
+
 + [*Gulp.js*](http://gulpjs.com/ '点击 · Click')
 
 + [*UglifyJS 2*](http://lisperator.net/uglifyjs/ '点击 · Click')
-
-+ [*NPM*](http://npmjs.org/ '点击 · Click')
 
 > 顺序安装；所有依赖均安装在全局环境下。
 
