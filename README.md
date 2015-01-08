@@ -35,7 +35,7 @@ Contact info
 
 + **Blog:** *https://medium.com/@itonyyo*
 
-+ **More? ** *http://www.evernote.com/l/AIdKUowUzdNLbK_gDY54E0gAqdcNuAol59E/*
++ **More?** *http://www.evernote.com/l/AIdKUowUzdNLbK_gDY54E0gAqdcNuAol59E/*
 
 
 
