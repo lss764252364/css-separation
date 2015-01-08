@@ -1,15 +1,15 @@
 如何创建独属于你的拷贝
---------------------
+-------------------
 
-如果你已经在自己的电脑上安装并配置了 `WSK IMAGE` 的[*主要开发依赖*](https://github.com/iTonyYo/WSK_IMAGE/wiki/%E4%B8%BB%E8%A6%81%E5%BC%80%E5%8F%91%E4%BE%9D%E8%B5%96 '点击 · Click')，你可以克隆一份 [*"WSK_IMAGE" 主要镜像*](https://github.com/iTonyYo/web.starter.kit-war.machine '点击 · Click') 副本至指定文件目录：
+如果你已经在自己的电脑上安装并配置了 `CSS-SEPARATION` 的[*主要开发依赖*]( '点击 · Click')，你可以克隆一份 [*"CSS-SEPARATION" 主要镜像*]( '点击 · Click') 副本至指定文件目录：
 
 ```bash
-git clone https://github.com/iTonyYo/WSK_IMAGE.git
+git clone https://github.com/iTonyYo/css-separation.git
 ```
 
-因为工程托管在 `Github` 上，所以你也可以使用 [*Github for Windows*](https://windows.github.com '点击 · Click') 或者 [*GitHub for Mac*](https://mac.github.com '点击 · Click') 客户端从 [*"WSK_IMAGE" 主要镜像*](https://github.com/iTonyYo/web.starter.kit-war.machine '点击 · Click') 处克隆一份副本。详细操作参阅《 [*Github Help · Fork A Repo*](https://help.github.com/articles/fork-a-repo/ '点击 · Click') 》。
+因为工程托管在 `Github` 上，所以你也可以使用 [*Github for Windows*](https://windows.github.com '点击 · Click') 或者 [*GitHub for Mac*](https://mac.github.com '点击 · Click') 客户端从 [*"CSS-SEPARATION" 主要镜像*](https://github.com/iTonyYo/css-separation/tree/master '点击 · Click') 处克隆一份副本。详细操作参阅《 [*Github Help · Fork A Repo*](https://help.github.com/articles/fork-a-repo/ '点击 · Click') 》。
 
-克隆完全后，进入 `WSK IMAGE` 文件夹，安装所有 `Node.js` 模块：
+克隆完全后，进入 `CSS-SEPARATION` 文件夹，安装所有 `Node.js` 模块：
 
 ```bash
 npm install
@@ -21,7 +21,7 @@ npm install
 sudo npm install
 ```
 
-如果你所处网络环境访问（境）外网存在不稳定的情况且没法儿使用 VPN 访问相关国外代理服务器，那么你可以通过国内 [*TAONPM*](http://npm.taobao.org/ '点击 · Click') 安装所有模块：
+如果你所处网络环境访问（境）外网存在不稳定的情况且没法儿使用 VPN 访问相关国外代理服务器，那么你可以通过国内 [*TAONPM*](http://npm.taobao.org/ '点击 · Click') 安装所有模块（推荐在可以访问外网的网络环境下安装所有的模块，因为个别模块会向 NPM 或 TAONPM 之外的服务器请求其它组件）：
 
 ```bash
 npm install --registry=https://registry.npm.taobao.org
@@ -33,7 +33,7 @@ npm install --registry=https://registry.npm.taobao.org
 
 
 
-如何推送你的修改至 WSK IMAGE
----------------------------
+如何推送你的修改至 CSS-SEPARATION
+------------------------------
 
-`WSK IMAGE` 是开源的，且托管在 `Github` 上，借助 `Github` 的 [*社交*](https://help.github.com/articles/be-social/ '点击 · Click') 特点，获取大家协作的力量完善 `WSK IMAGE` 。参阅《 [*Using pull requests*](https://help.github.com/articles/using-pull-requests/ '点击 · Click') 》、《 [*Creating a pull request*](https://help.github.com/articles/creating-a-pull-request/ '点击 · Click') 》，以借助 `Github` 将你的修改推送至 `WSK IMAGE` 。:smiley:
+`CSS-SEPARATION` 是开源的，且托管在 `Github` 上，借助 `Github` 的 [*社交*](https://help.github.com/articles/be-social/ '点击 · Click') 特点，获取大家协作的力量完善 `CSS-SEPARATION` 。参阅《 [*Using pull requests*](https://help.github.com/articles/using-pull-requests/ '点击 · Click') 》、《 [*Creating a pull request*](https://help.github.com/articles/creating-a-pull-request/ '点击 · Click') 》，以借助 `Github` 将你的修改推送至 `CSS-SEPARATION` 。:smiley:
