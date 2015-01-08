@@ -99,3 +99,7 @@ uglifyjs --help
 `Mocha.js` 是一个基于 `Node.js` 和浏览器的集合各种特性的 `JavaScript` 测试框架，并且可以让异步测试也变的简单和有趣。`Mocha.js` 的测试是
 连续的，在正确的测试条件中遇到未捕获的异常时，会给出灵活且准确的报告。`Mocha.js` 托管
 在 [*Github*](https://github.com/mochajs/mocha '点击 · Click') 上。
+
+```bash
+mocha --help
+```
