@@ -16,6 +16,79 @@ Separate content like conditional stylesheets(and so on...) from ".css" file, an
 
 
 
+Usage
+-----
+
+**Install**
+
+![how to install](https://nodei.co/npm/css-separation.png?mini=true)
+
+Just use `npm install css-separation` command. Of course you can use `--save-dev` param after the command above to save `css-separation` to `package.json` of your project.
+
+**Folder structure for reference,**
+
+```
+root/
+├── [.git]
+├── [doc]
+├── [node_modules]
+├── [dev]
+│   ├── [code]
+│   │   ├── [splited_tasks_for_gulp]
+│   │   ├── [scripts]
+│   │   ├── [stylesheets]
+│   ├── [image]
+│   ├── [font]
+├── [dest]
+│   ├── [bower_components]
+│   ├── [resources]
+│   │   ├── [css]
+│   │   ├── [js]
+│   │   ├── [img]
+│   │   ├── [font]
+├── [gulp]
+├── [test]
+├── [tool]
+```
+
+**Code details,**
+
+```js
+...
+
+var separator;
+
+instance = require('css-separation');
+
+separator = new instance();
+
+separator.deal('dest/resources/css/example.css');
+
+...
+```
+...
+
+
+
+API
+------
+
+#### new cssSeparation(options)
+
+...
+
+#### deal(src)
+
+...
+
+#### options
+
++ ...
+
+...
+
+
+
 Helping CSS-SEPARATION
 ----------------------
 
