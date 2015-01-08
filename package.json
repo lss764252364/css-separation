@@ -2,7 +2,7 @@
 
 	"name": "css-separation",
 
-	"description": "Separate content like conditional stylesheets(and soon...) from '*.css' file, and generate individual files for them according to certain rules!",
+	"description": "(In progress...) Separate content like conditional stylesheets(and soon...) from '*.css' file, and generate individual files for them according to certain rules!",
 
 	"keywords": [
 
@@ -32,7 +32,7 @@
 
 	],
 
-	"version": "0.1.0",
+	"version": "0.1.0-pre.1",
 
 	"author": {
 
