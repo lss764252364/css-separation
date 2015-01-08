@@ -1,5 +1,5 @@
 文件夹 · 文件 · 结构
-===================
+-------------------
 
 ```
 root/                            # 工程根目录存放所有工程文件，诸如： .gitignore, package.json, gulpfile.js, .editorconfig 等。

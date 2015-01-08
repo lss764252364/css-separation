@@ -1,5 +1,5 @@
 主要开发依赖
-===========
+-----------
 
 + [*Git*](http://git-scm.com/ '点击 · Click')  ( [*Pro Git 中文版*](http://git-scm.com/book/zh/v1 '点击 · Click') )
 
