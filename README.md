@@ -79,6 +79,10 @@ separator.deal('dest/resources/css/example.css');
 ...
 ```
 
+**Use with [`Glob`](https://www.npmjs.com/package/glob '点击 · Click') Module to deal multiple `*.css` files,**
+
+...
+
 
 
 API
